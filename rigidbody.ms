@@ -99,4 +99,12 @@ tryCreateBoxBody = function(width, height, position, density, isStatic, restitut
     
     return outRigidbody
 end function
+
+Rigidbody2D.move = function(amount)
+    self._position += amount
+end function
+
+Rigidbody2D.moveTo = function(position)
+    self._position = position
+end function
 ///////////////////////////////////////////////////////////////////////////////
