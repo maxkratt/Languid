@@ -23,10 +23,6 @@ Rigidbody2D = {
     "shapeType": 0, // Circle = 0, Box = 1
 }
 
-Rigidbody2D.getPosition = function
-    return self._position
-end function
-
 tryCreateCircleBody = function(radius, position, density, isStatic, restitution)
     outRigidbody = null
 
@@ -101,7 +97,7 @@ tryCreateBoxBody = function(width, height, position, density, isStatic, restitut
 end function
 
 Rigidbody2D.move = function(amount)
-    self._position += amount
+    self._position.vec2Add amount
 end function
 
 Rigidbody2D.moveTo = function(position)

@@ -16,6 +16,7 @@ end function
 map.vec2Add = function(vectorAddend)
     self.x += vectorAddend.x
     self.y += vectorAddend.y
+    return self
 end function
 
 map.vec2AddNew = function(vectorAddend)
@@ -25,6 +26,7 @@ end function
 map.vec2AddScaler = function(addend)
     self.x += addend
     self.y += addend
+    return self
 end function
 
 map.vec2AddScalerNew = function(addend)
@@ -36,6 +38,7 @@ end function
 map.vec2Sub = function(vectorSubtrahend)
     self.x -= vectorSubtrahend.x
     self.y -= vectorSubtrahend.y
+    return self
 end function
 
 map.vec2SubNew = function(vectorSubtrahend)
@@ -45,6 +48,7 @@ end function
 map.vec2SubScaler = function(subtrahend)
     self.x -= subtrahend
     self.y -= subtrahend
+    return self
 end function
 
 map.vec2SubScalerNew = function(subtrahend)
@@ -54,6 +58,7 @@ end function
 map.vec2Invert = function()
     self.x = -self.x
     self.y = -self.y
+    return self
 end function
 
 map.vec2InvertNew = function()
@@ -65,6 +70,7 @@ end function
 map.vec2Mul = function(multiplier)
     self.x *= multiplier.x
     self.y *= multiplier.y
+    return self
 end function
 
 map.vec2MulNew = function(multiplier)
@@ -74,6 +80,7 @@ end function
 map.vec2MulScaler = function(multiplier)
     self.x *= multiplier
     self.y *= multiplier
+    return self
 end function
 
 map.vec2MulScalerNew = function(multiplier)
@@ -93,6 +100,7 @@ end function
 map.vec2Div = function(divisor)
     self.x /= divisor.x
     self.y /= divisor.y
+    return self
 end function
 
 map.vec2DivNew = function(divisor)
@@ -102,6 +110,7 @@ end function
 map.vec2DivScaler = function(divisor)
     self.x /= divisor
     self.y /= divisor
+    return self
 end function
 
 map.vec2DivScalerNew = function(divisor)
@@ -118,7 +127,18 @@ map.vec2LengthSquared = function
     return self.x ^ 2 + self.y ^ 2
 end function
 
+map.vec2Normalize = function
+    if self.x == 0 and self.y == 0 then return
+
+    length = self.vec2Length
+    self.x /= length
+    self.y /= length
+    return self
+end function
+
 map.vec2Normalized = function
+    if self.x == 0 and self.y == 0 then return {"x": 0, "y": 0}
+    
     length = self.vec2Length
     return {"x": self.x / length, "y": self.y / length}
 end function

@@ -1,6 +1,7 @@
 import "vec2"
 import "mathUtil"
 import "rigidbody"
+import "collisions"
 
 bodyList = []
 bodyColors = []
@@ -28,23 +29,64 @@ init = function
 
 end function
 
-update = function
+update = function(deltaTime)
     
     handleCanvasZooming
+
+    dx = key.axis("Horizontal", 0)
+    dy = key.axis("Vertical", 0)
+    speed = 240
+
+    input = vec2.create(dx, dy)
+    
+    if dx != 0 or dy != 0 then
+        input.vec2Normalize()
+        velocity = input.vec2MulScalerNew(speed * deltaTime)
+        bodyList[0].move(velocity)
+    end if
+
+    i = 0; while i < bodyList.len - 1
+        bodyA = bodyList[i]
+
+        j = i + 1; while j < bodyList.len
+            bodyB = bodyList[j]
+
+            normal = []
+            depth = []
+            if collisions.intersectCircles(bodyA._position, bodyA.radius, 
+                                            bodyB._position, bodyB.radius, normal, depth) then
+                halfDepth = depth[0] * 0.5
+                bodyA.move normal[0].vec2MulScalerNew(-halfDepth)
+                bodyB.move normal[0].vec2MulScalerNew(halfDepth)
+            end if
+        
+        j += 1; end while
+    i += 1; end while
 
     return not key.pressed("escape")
 end function
 
+gfx.fillCircle = function(position, radius, color = "#FFFFFF")
+    diameter = radius * 2
+    gfx.fillEllipse position.x - radius, position.y - radius, diameter, diameter, color
+end function
+
+gfx.drawCircle = function(position, radius, color = "#FFFFFF")
+    diameter = radius * 2
+    gfx.drawEllipse position.x - radius, position.y - radius, diameter, diameter, color
+end function
+
+display(7).color = "#303b44"
 draw = function
     
-    display(7).color = "#303b44"
-
+    gfx.fillRect 0, 0, gfx.width, gfx.height, "#303b44"
     i = 0
     for body in bodyList
-        position = body.getPosition
+        position = body._position
+        radius = body.radius
         if body.shapeType == 0 then
-            gfx.fillEllipse position.x, position.y, body.radius, body.radius, bodyColors[i]
-            gfx.drawEllipse position.x, position.y, body.radius, body.radius, color.white
+            gfx.fillCircle position, radius, bodyColors[i]
+            gfx.drawCircle position, radius, color.white
         else
             gfx.fillRect position.x, position.y, body.width, body.height, bodyColors[i]
             gfx.drawRect position.x, position.y, body.width, body.height, color.white
@@ -54,7 +96,7 @@ draw = function
 
 end function
 
-lastXZoomPoint = 0
+
 handleCanvasZooming = function
     input = key.axis("Mouse ScrollWheel")
     if input != 0 then
@@ -77,56 +119,64 @@ randomColor = function
     return color.rgb(floor(rnd * 256), floor(rnd * 256), floor(rnd * 256))
 end function
 
+clear
+prevCounter = ""
+lastTime = 0
+fps = 0
+updateCounter = function(dt)
+	counter = round(time)
+	if counter == prevCounter then 
+        globals.fps += 1
+        return
+    end if
+    rowLastAt = text.row
+	text.row = 25
+	print "FPS: " + fps
+    text.row = rowLastAt
+	globals.prevCounter = counter
+    globals.fps = 1
+end function
 
 init
-draw
 shouldUpdate = true
 while shouldUpdate
-    shouldUpdate = update
+    now = time
+	dt = now - lastTime
+	lastTime = now
+	updateCounter dt
+    shouldUpdate = update(dt)
+    draw
     yield
 end while
+
+
+
 
 // import "vec2"
 // import "benchmark"
 
 // rangeToLoop = range(200000)
 
-// addingTwoFloats = function
-//     x1 = 0.05
-//     y1 = 0.002
-//     x2 = 0.001
-//     y2 = 0.003
+// vec2AddScaler = function
+//     v1 = vec2.create(41.04, 25.002)
 //     for i in rangeToLoop
-//         x1 += x2
-//         y1 += y2
+//         v1.vec2AddScaler 1.3
 //     end for
 // end function
 
-// invertVec2 = function
-//     v1 = vec2.create(0.05, 0.002)
+// vec2AddScaler2 = function
+//     v1 = vec2.create(41.04, 25.002)
 //     for i in rangeToLoop
-//         v1.vec2Invert
+//         v1.vec2AddScaler2 1.3
 //     end for
 // end function
-
-// invertVec2New = function
-//     v1 = vec2.create(0.05, 0.002)
-//     for i in rangeToLoop
-//         v1.vec2InvertNew
-//     end for
-// end function
-
 
 // clear
 
-// print "addingTwoFloats"
-// benchmark.benchmarkFunction(@addingTwoFloats)
-// print
 
-// print "invertVec2"
-// benchmark.benchmarkFunction(@invertVec2)
+// print "vec2AddScaler"
+// benchmark.benchmarkFunction(@vec2AddScaler)
 // print
-
-// print "invertVec2New"
-// benchmark.benchmarkFunction(@invertVec2New)
+// print "vec2AddScaler2"
+// benchmark.benchmarkFunction(@vec2AddScaler2)
 // print
