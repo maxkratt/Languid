@@ -5,20 +5,21 @@ import "collisions"
 
 bodyList = []
 bodyColors = []
-spawnPadding = 20
+vertexBuffer = []
+spawnPadding = 100
 
 init = function
     clear
     
-    for i in range(9)
-        x = rnd * (spawnPadding + (960 - spawnPadding * 2))
-        y = rnd * (spawnPadding + (640 - spawnPadding * 2))
-        type = 0// floor(mathUtil.randRange(0, 2))
+    for i in range(50)
+        x = mathUtil.randRange(spawnPadding, gfx.width - spawnPadding)
+        y = mathUtil.randRange(spawnPadding, gfx.height - spawnPadding)
+        type = 1// floor(mathUtil.randRange(0, 2))
         body = null
         if type == 0 then
             body = rigidbody.tryCreateCircleBody(30, vec2.create(x, y), 2, false, 0.5)
         else
-            body = rigidbody.tryCreateBoxBody(30, 30, vec2.create(x, y), 2, false, 0.5)
+            body = rigidbody.tryCreateBoxBody(20, 20, vec2.create(x, y), 2, false, 0.5)
         end if
 
         if body != null then
@@ -45,23 +46,30 @@ update = function(deltaTime)
         bodyList[0].move(velocity)
     end if
 
-    i = 0; while i < bodyList.len - 1
-        bodyA = bodyList[i]
+    // Rotate boxes
+    for b in bodyList
+        b.rotate pi / 2 * deltaTime
+    end for
 
-        j = i + 1; while j < bodyList.len
-            bodyB = bodyList[j]
 
-            normal = []
-            depth = []
-            if collisions.intersectCircles(bodyA._position, bodyA.radius, 
-                                            bodyB._position, bodyB.radius, normal, depth) then
-                halfDepth = depth[0] * 0.5
-                bodyA.move normal[0].vec2MulScalerNew(-halfDepth)
-                bodyB.move normal[0].vec2MulScalerNew(halfDepth)
-            end if
+    // // Circle collisions 
+    // i = 0; while i < bodyList.len - 1
+    //     bodyA = bodyList[i]
+
+    //     j = i + 1; while j < bodyList.len
+    //         bodyB = bodyList[j]
+
+    //         normal = []
+    //         depth = []
+    //         if collisions.intersectCircles(bodyA._position, bodyA.radius, 
+    //                                         bodyB._position, bodyB.radius, normal, depth) then
+    //             halfDepth = depth[0] * 0.5
+    //             bodyA.move normal[0].vec2MulScalerNew(-halfDepth)
+    //             bodyB.move normal[0].vec2MulScalerNew(halfDepth)
+    //         end if
         
-        j += 1; end while
-    i += 1; end while
+    //     j += 1; end while
+    // i += 1; end while
 
     return not key.pressed("escape")
 end function
@@ -79,7 +87,11 @@ end function
 display(7).color = "#303b44"
 draw = function
     
+    // Clear the graphics screen
     gfx.fillRect 0, 0, gfx.width, gfx.height, "#303b44"
+
+    gfx.drawRect spawnPadding, spawnPadding, gfx.width - spawnPadding * 2, gfx.height - spawnPadding * 2
+
     i = 0
     for body in bodyList
         position = body._position
@@ -88,8 +100,12 @@ draw = function
             gfx.fillCircle position, radius, bodyColors[i]
             gfx.drawCircle position, radius, color.white
         else
-            gfx.fillRect position.x, position.y, body.width, body.height, bodyColors[i]
-            gfx.drawRect position.x, position.y, body.width, body.height, color.white
+            points = []
+            for p in body.getTransformVertices
+                points.push([p.x, p.y])
+            end for
+            gfx.fillPoly points, bodyColors[i]
+            gfx.drawPoly points, color.white
         end if
         i += 1
     end for

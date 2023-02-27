@@ -155,3 +155,12 @@ distance = function(vector1, vector2)
     return sqrt(dx ^ 2 + dy ^ 2)
 end function
 ///////////////////////////////////////////////////////////////////////////////
+
+// Movement ///////////////////////////////////////////////////////////////////
+transform = function(vector, transform)
+    return {
+        "x": transform.cos * vector.x - transform.sin * vector.y + transform.positionX,
+        "y": transform.sin * vector.x + transform.cos * vector.y + transform.positionY,
+    }
+end function
+///////////////////////////////////////////////////////////////////////////////
